@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="dependencies/lib/twitter4j-core-4.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/Documents/HPtweetAnalyzer/mongo-java-driver-3.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-api/2.44.0/selenium-api-2.44.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-htmlunit-driver/2.44.0/selenium-htmlunit-driver-2.44.0.jar" sourcepath="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-htmlunit-driver/2.44.0/selenium-htmlunit-driver-2.44.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-java/2.44.0/selenium-java-2.44.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-remote-driver/2.44.0/selenium-remote-driver-2.44.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-firefox-driver/2.44.0/selenium-firefox-driver-2.44.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Kushal/.m2/repository/org/seleniumhq/selenium/selenium-server-standalone/2.44.0/selenium-server-standalone-2.44.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
