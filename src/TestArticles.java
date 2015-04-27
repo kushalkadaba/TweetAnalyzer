@@ -24,7 +24,7 @@ public class TestArticles {
 		DistinctIterable<ObjectId> trends = table.distinct(NameHelper.PRIMARY_KEY, 
 				ObjectId.class);
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(new File("output.json")));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File("output.txt")));
 
 			for(ObjectId trend_id :trends){
 				MongoCursor<Document> iterator = success.find(new Document(
@@ -47,9 +47,12 @@ public class TestArticles {
 							+"\n");
 				}
 			}
+			bw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			mongo.close();
 		}
 	}
 
