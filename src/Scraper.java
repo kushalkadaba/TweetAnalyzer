@@ -19,7 +19,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.sun.xml.internal.bind.v2.runtime.Name;
 
 public class Scraper  {
 	private final static String baseURL = "http://www.huffingtonpost.com";
