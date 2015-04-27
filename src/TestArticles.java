@@ -20,14 +20,17 @@ public class TestArticles {
 				ObjectId.class);
 		for(ObjectId trend_id :trends){
 			MongoCursor<Document> iterator = success.find(new Document(
-					NameHelper.SUC_FAIL_COLUMNS.ID,trend_id))
+					NameHelper.SUC_FAIL_COLUMNS.ID,trend_id.toString()))
 			.sort(new Document(NameHelper.SUC_FAIL_COLUMNS.WEIGHT,-1)).iterator();
 			if(!iterator.hasNext()){
 				iterator = failure.find(new Document(
-						NameHelper.SUC_FAIL_COLUMNS.ID,trend_id))
+						NameHelper.SUC_FAIL_COLUMNS.ID,trend_id.toString())
+				.append(NameHelper.SUC_FAIL_COLUMNS.WEIGHT,new Document("$ne",0)))
 				.sort(new Document(NameHelper.SUC_FAIL_COLUMNS.WEIGHT,-1)).iterator();
 			}
-			System.out.println("Trend ID:"+trend_id);
+			System.out.println("Trend ID:"+trend_id+" Trend Name: "
+			+table.find(new Document(NameHelper.PRIMARY_KEY,trend_id)).first()
+			.getString(NameHelper.TREND_TABLE_COLUMNS.TREND));
 			while(iterator.hasNext()){
 				Document current = iterator.next();
 				System.out.println(current.getString(NameHelper.SUC_FAIL_COLUMNS.DESC)

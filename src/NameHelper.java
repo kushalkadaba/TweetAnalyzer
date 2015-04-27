@@ -28,7 +28,7 @@ public final class NameHelper {
 		static final String TWEETS = "tweets";
 	}
 	final class SUC_FAIL_COLUMNS{
-		static final String ID = "_id";
+		static final String ID = "trend_id";
 		static final String WEIGHT = "weight";
 		static final String LINK = "link";
 		static final String DESC = "desc";

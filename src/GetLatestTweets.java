@@ -63,20 +63,20 @@ public class GetLatestTweets{
 				query.setResultType(Query.ResultType.popular);
 				query.setCount(4);
 				QueryResult result;
-	            do {
-	                result = twitter.search(query);
-	                List<Status> tweetResults = result.getTweets();
-	                List<String> tweets = new ArrayList<String>();
-	                for (Status tweet : tweetResults) {
-	                    tweets.add(tweet.getText());
-	                }
-					table.insertOne(new Document(NameHelper.TREND_TABLE_COLUMNS.TREND, 
-							trendName)
-					.append(NameHelper.TREND_TABLE_COLUMNS.TREND_STRING, 
-							trendName.replaceAll("#|\\'s", ""))
-					.append(NameHelper.TREND_TABLE_COLUMNS.QUERY, searchString)
-					.append("tweets", tweets ));
-	            } while ((query = result.nextQuery()) != null);
+	            //do {
+                result = twitter.search(query);
+                List<Status> tweetResults = result.getTweets();
+                List<String> tweets = new ArrayList<String>();
+                for (Status tweet : tweetResults) {
+                    tweets.add(tweet.getText());
+                }
+				table.insertOne(new Document(NameHelper.TREND_TABLE_COLUMNS.TREND, 
+						trendName)
+				.append(NameHelper.TREND_TABLE_COLUMNS.TREND_STRING, 
+						trendName.replaceAll("#|\\'s", ""))
+				.append(NameHelper.TREND_TABLE_COLUMNS.QUERY, searchString)
+				.append(NameHelper.TREND_TABLE_COLUMNS.TWEETS, tweets ));
+	            //} while ((query = result.nextQuery()) != null);
 			}
 			mongo.close();
 		}

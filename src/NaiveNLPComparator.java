@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.Block;
@@ -39,7 +41,7 @@ public class NaiveNLPComparator {
 					new FileReader(new File("StopWords.txt")));
 			String word = null;
 			while((word=br.readLine())!= null){
-				stopWords.add(word);
+				stopWords.add(word.trim());
 			}
 			br.close();
 		} catch (IOException e) {
@@ -50,10 +52,13 @@ public class NaiveNLPComparator {
 		Set<String> wordList = new HashSet<String>();
 		String[] words = tweet.split(" ");
 		for(String word:words){
-			if(!stopWords.contains(word))
+			word = word.toLowerCase().replaceAll("\\(|\\)|!|,|\"|\\.+|\\d+|https?://.*|#|:", "");
+			word = word.replaceAll("@", "at");
+			if(!stopWords.contains(word) && !word.equals(""))
 				wordList.add(word);
 		}
-		return (String[])wordList.toArray();
+		String[] strings = new String[wordList.size()]; 
+		return (String[])wordList.toArray(strings);
 	}
 	public void processTweets(){
 		FindIterable<Document> iterable = table.find();
@@ -64,19 +69,21 @@ public class NaiveNLPComparator {
 				trendIds.add(doc.getObjectId(NameHelper.PRIMARY_KEY));
 				HashMap<String, Integer> freq = new HashMap<>();
 				int maxFrequency = 0;
+				int sum = 0;
 				ArrayList<String> tweets = (ArrayList<String>) 
 						doc.get(NameHelper.TREND_TABLE_COLUMNS.TWEETS);
 				for(String tweet: tweets){
 					String[] keyWords = getWords(tweet);
-					cumulativeWeight.add(keyWords.length);
 					for(String key : keyWords){
 						if(freq.get(key) == null){
 							freq.put(key, 1);
+							sum ++;
 							maxFrequency = maxFrequency < 1? 1: maxFrequency;
 						}
 						else{
 							int frequency = freq.get(key)+1;
 							freq.put(key, frequency);
+							sum ++;
 							maxFrequency = maxFrequency < frequency? 
 									frequency: maxFrequency;
 						}
@@ -84,6 +91,7 @@ public class NaiveNLPComparator {
 				}
 				freq.put(doc.getString(NameHelper.TREND_TABLE_COLUMNS.TREND_STRING),
 						++maxFrequency);
+				cumulativeWeight.add(sum);
 				wordFrequencies.add(freq);
 			}
 			
@@ -95,23 +103,23 @@ public class NaiveNLPComparator {
 		double percent = 0;
 		String[] words = desc.split(" ");
 		for(String word: words){
+			word = word.toLowerCase();
 			if(frequency.containsKey(word))
 				percent += frequency.get(word);
 		}
-		return percent/weight;
+		return weight>0?percent/weight:percent;
 	}
 	public void findMatches(){
 		table = db.getCollection(NameHelper.HUFF_TABLE);
-		FindIterable<Document> iterable = table.find();
-		iterable.forEach(new Block<Document>() {
-
-			@Override
-			public void apply(Document doc) {
-				List<Document> sub_cats = (List<Document>) 
-						doc.get(NameHelper.HUFF_TABLE_COLUMNS.SUB_CATEGORY);
+		Iterator<Document> iterable = table.find().iterator();
+		while(iterable.hasNext()){
+			List<Document> sub_cats = (List<Document>) 
+						iterable.next().get(NameHelper.HUFF_TABLE_COLUMNS.SUB_CATEGORY);
 				for(Document sub_cat:sub_cats){
 					List<Document> articles = (List<Document>) sub_cat.get(
 						NameHelper.HUFF_TABLE_COLUMNS.SUB_CATEGORY_COLUMNS.ARTICLES);
+					if(articles == null)
+						continue;
 					for(Document article:articles){
 						int i =0;
 						for(HashMap<String, Integer> frequency: wordFrequencies){
@@ -125,7 +133,7 @@ public class NaiveNLPComparator {
 									weight, frequency);	
 							if(percent > 0.5){
 								success_table.insertOne(new Document(NameHelper.
-										SUC_FAIL_COLUMNS.ID,trendId).
+										SUC_FAIL_COLUMNS.ID,trendId.toString()).
 										append(NameHelper.SUC_FAIL_COLUMNS.DESC,desc).
 										append(NameHelper.SUC_FAIL_COLUMNS.LINK,
 										article.getString(NameHelper.
@@ -133,12 +141,12 @@ public class NaiveNLPComparator {
 												SUB_CATEGORY_COLUMNS.
 												ARTICLE_COLUMNS.LINK)).
 										append(NameHelper.SUC_FAIL_COLUMNS.WEIGHT, 
-												weight));
+												percent));
 							}
 							else
 							{
 								failure_table.insertOne(new Document(NameHelper.
-										SUC_FAIL_COLUMNS.ID,trendId).
+										SUC_FAIL_COLUMNS.ID,trendId.toString()).
 										append(NameHelper.SUC_FAIL_COLUMNS.DESC,desc).
 										append(NameHelper.SUC_FAIL_COLUMNS.LINK,
 										article.getString(NameHelper.
@@ -146,15 +154,13 @@ public class NaiveNLPComparator {
 												SUB_CATEGORY_COLUMNS.
 												ARTICLE_COLUMNS.LINK)).
 										append(NameHelper.SUC_FAIL_COLUMNS.WEIGHT, 
-												weight));
+												percent));
 							}
 						}
 					}
 				}
 				
 			}
-			
-		});
 	}
 	private void disconnectFromDB(){
 		if(mongo != null)
